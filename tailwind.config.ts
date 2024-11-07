@@ -10,6 +10,7 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
+        sucess: "#55B02E",
         danger: "#F6352E",
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
@@ -22,7 +23,7 @@ const config: Config = {
           foreground: "hsl(var(--popover-foreground))",
         },
         primary: {
-          DEFAULT: "hsl(var(--primary))",
+          DEFAULT: "#0097b2",
           foreground: "hsl(var(--primary-foreground))",
         },
         secondary: {
@@ -43,7 +44,7 @@ const config: Config = {
         },
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
-        ring: "hsl(var(--ring))",
+        ring: "#0097b2",
         chart: {
           "1": "hsl(var(--chart-1))",
           "2": "hsl(var(--chart-2))",
