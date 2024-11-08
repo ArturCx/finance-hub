@@ -10,6 +10,7 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
+        main: "#0097b2",
         sucess: "#55B02E",
         danger: "#F6352E",
         background: "hsl(var(--background))",
