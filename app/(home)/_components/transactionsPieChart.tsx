@@ -72,7 +72,7 @@ const TransactionsPieChart = ({
               content={<ChartTooltipContent hideLabel />}
             />
             <Pie
-              data={chartData}
+              data={JSON.parse(JSON.stringify(chartData))}
               dataKey="amount"
               nameKey="type"
               innerRadius={60}
