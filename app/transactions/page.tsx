@@ -16,6 +16,9 @@ const TransactionsPage = async () => {
     where: {
       userId,
     },
+    orderBy: {
+      createdAt: "desc",
+    },
   });
   return (
     <>
