@@ -24,6 +24,22 @@ model Transaction {
   createdAt     DateTime                 @default(now())
   updatedAt     DateTime                 @updatedAt
   userId        String
+
+  @@map("transactions")
+}
+
+model Cryptos {
+  id                       String  @id @default(uuid())
+  externalId               String  @unique
+  name                     String
+  image                    String
+  currentPrice             Decimal
+  marketCapRank            Decimal
+  marketCap                Decimal
+  priceChangePercentage24h Decimal
+  totalVolume              Decimal
+
+  @@map("cryptos")
 }
 
 enum TransactionType {
