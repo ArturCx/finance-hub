@@ -1,35 +1,73 @@
+/* eslint-disable @next/next/no-img-element */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { Transaction } from "@prisma/client";
+import { Cryptos } from "@prisma/client";
 import { ColumnDef } from "@tanstack/react-table";
-import TransactionTypeBadge from "../_components/typeBadge";
 
-export const cryptoColumns: ColumnDef<Transaction>[] = [
+export const cryptoColumns: ColumnDef<Cryptos>[] = [
   {
-    accessorKey: "coins",
+    accessorKey: "marketCapRank",
+    header: "Rank",
+    cell: ({ getValue }) => {
+      const value = parseFloat(getValue() as any); // Converte Decimal para número
+      return !isNaN(value) ? value : "N/A";
+    },
+  },
+  {
+    accessorKey: "name",
     header: "Moeda",
-  },
-  {
-    accessorKey: "price",
-    header: "Preço",
-  },
-  {
-    accessorKey: "24h",
-    header: "24h",
-    cell: ({ row: { original: transaction } }) => (
-      <TransactionTypeBadge transaction={transaction} />
+    cell: ({ row }) => (
+      <div className="flex items-center">
+        <img
+          src={row.original.image}
+          alt={row.original.name}
+          className="h-6 w-6 rounded-full mr-2"
+        />
+        <span>{row.original.name}</span>
+      </div>
     ),
   },
   {
-    accessorKey: "24h_volume",
+    accessorKey: "currentPrice",
+    header: "Preço",
+    cell: ({ getValue }) => {
+      const value = parseFloat(getValue() as any); // Converte Decimal para número
+      return !isNaN(value) ? `R$ ${value.toFixed(2)}` : "N/A";
+    },
+  },
+  {
+    accessorKey: "priceChangePercentage24h",
+    header: "24h",
+    cell: ({ getValue }) => {
+      const value = parseFloat(getValue() as any); // Converte Decimal para número
+      return !isNaN(value) ? (
+        <span
+          className={
+            value > 0 ? "text-green-500 font-bold" : "text-red-500 font-bold"
+          }
+        >
+          {value.toFixed(2)}%
+        </span>
+      ) : (
+        "N/A"
+      );
+    },
+  },
+  {
+    accessorKey: "totalVolume",
     header: "Volume 24h",
+    cell: ({ getValue }) => {
+      const value = parseFloat(getValue() as any); // Converte Decimal para número
+      return !isNaN(value) ? `R$ ${value.toLocaleString()}` : "N/A";
+    },
   },
   {
-    accessorKey: "market_cap",
-    header: "	Market Cap",
-  },
-  {
-    accessorKey: "last_7_days",
-    header: "Últimos 7 dias",
+    accessorKey: "marketCap",
+    header: "Market Cap",
+    cell: ({ getValue }) => {
+      const value = parseFloat(getValue() as any); // Converte Decimal para número
+      return !isNaN(value) ? `R$ ${value.toLocaleString()}` : "N/A";
+    },
   },
 ];

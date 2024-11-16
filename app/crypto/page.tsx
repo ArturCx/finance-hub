@@ -2,17 +2,14 @@ import { auth } from "@clerk/nextjs/server";
 import Navbar from "../_components/navbar";
 import { redirect } from "next/navigation";
 import { ScrollArea } from "../_components/ui/scroll-area";
-import { DataTable } from "../_components/ui/dataTable";
-import { cryptoColumns } from "./_columns";
 import SearchBar from "../_components/searchBar";
+import CryptoTable from "./_components/cryptoTable";
 
 const CryptoPage = async () => {
   const { userId } = await auth();
   if (!userId) {
     redirect("/login");
   }
-
-  const crypto = true;
 
   return (
     <>
@@ -24,10 +21,7 @@ const CryptoPage = async () => {
           <SearchBar />
         </div>
         <ScrollArea className="h-full">
-          <DataTable
-            columns={cryptoColumns}
-            data={JSON.parse(JSON.stringify(crypto))}
-          />
+          <CryptoTable />
         </ScrollArea>
       </div>
     </>
