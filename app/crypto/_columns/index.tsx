@@ -4,6 +4,7 @@
 
 import { Cryptos } from "@prisma/client";
 import { ColumnDef } from "@tanstack/react-table";
+import CryptoVariationBadge from "../_components/cryptoVariationBadge";
 
 export const cryptoColumns: ColumnDef<Cryptos>[] = [
   {
@@ -41,17 +42,7 @@ export const cryptoColumns: ColumnDef<Cryptos>[] = [
     header: "24h",
     cell: ({ getValue }) => {
       const value = parseFloat(getValue() as any); // Converte Decimal para número
-      return !isNaN(value) ? (
-        <span
-          className={
-            value > 0 ? "text-green-500 font-bold" : "text-red-500 font-bold"
-          }
-        >
-          {value.toFixed(2)}%
-        </span>
-      ) : (
-        "N/A"
-      );
+      return <CryptoVariationBadge variation={!isNaN(value) ? value : null} />;
     },
   },
   {
@@ -69,5 +60,9 @@ export const cryptoColumns: ColumnDef<Cryptos>[] = [
       const value = parseFloat(getValue() as any); // Converte Decimal para número
       return !isNaN(value) ? `R$ ${value.toLocaleString()}` : "N/A";
     },
+  },
+  {
+    accessorKey: "chart",
+    header: "Gráfico (7dias)",
   },
 ];

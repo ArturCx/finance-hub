@@ -42,6 +42,16 @@ model Cryptos {
   @@map("cryptos")
 }
 
+model CryptoCharts {
+  id           String   @id @default(uuid())
+  externalId   String   @unique
+  prices       Json
+  marketCaps   Json
+  totalVolumes Json
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
 enum TransactionType {
   DEPOSIT
   EXPENSE
