@@ -15,7 +15,7 @@ const LoginPage = async () => {
       {/*Esquerda */}
       <div className="flex h-full flex-col justify-center p-8 max-w-[550px] mx-auto">
         <Image
-          src="/logo.png"
+          src="/logo.svg"
           width={173}
           height={40}
           alt="Finance Hub Logo"
