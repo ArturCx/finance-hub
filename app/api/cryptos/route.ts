@@ -1,22 +1,50 @@
-import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
+import { NextRequest, NextResponse } from "next/server";
+import { Prisma, PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-export async function GET() {
-  try {
-    // Busca e ordena os dados do banco de dados
-    const cryptos = await prisma.cryptos.findMany({
-      orderBy: {
-        marketCapRank: "asc", // Ordena por marketCapRank em ordem crescente
-      },
-    });
+interface Params {
+  page: number;
+  limit: number;
+  search?: string;
+}
 
-    return NextResponse.json(cryptos);
+export async function GET(request: NextRequest) {
+  const { page, limit, search } = {
+    page: Number(request.nextUrl.searchParams.get("page") ?? 1),
+    limit: Number(request.nextUrl.searchParams.get("limit") ?? 10),
+    search: request.nextUrl.searchParams.get("search"),
+  } as Params;
+
+  try {
+    const where: Prisma.CryptosWhereInput = {
+      ...(search && { name: { contains: search, mode: "insensitive" } }),
+    };
+
+    // Busca e ordena os dados do banco de dados, incluindo os gráficos
+    const [cryptos, total] = await prisma.$transaction([
+      prisma.cryptos.findMany({
+        orderBy: {
+          marketCapRank: "asc", // Ordena por marketCapRank em ordem crescente
+        },
+        include: {
+          charts: true, // Inclui os dados do relacionamento com CryptoCharts
+        },
+        take: limit,
+        skip: (page - 1) * limit,
+        where,
+      }),
+
+      prisma.cryptos.count({
+        where,
+      }),
+    ]);
+
+    return NextResponse.json({ cryptos, total });
   } catch (error) {
-    console.error("Erro ao buscar criptomoedas:", error);
+    console.error("Erro ao buscar criptomoedas com gráficos:", error);
     return NextResponse.json(
-      { message: "Erro ao buscar criptomoedas", error },
+      { message: "Erro ao buscar criptomoedas com gráficos", error },
       { status: 500 }
     );
   } finally {

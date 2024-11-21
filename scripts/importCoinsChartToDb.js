@@ -3,55 +3,74 @@ import fetch from "node-fetch";
 
 const prisma = new PrismaClient();
 
+// Configuração para respeitar o limite de requisições
+const RATE_LIMIT = 30; // Requisições permitidas por minuto
+const DELAY_MS = (60 / RATE_LIMIT) * 1000; // Intervalo entre requisições em milissegundos
+
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
 (async () => {
-  const apiUrl = "https://api.coingecko.com/api/v3/coins/{id}/market_chart";
-  const options = {
-    method: "GET",
-    headers: {
-      accept: "application/json",
-      "x-cg-demo-api-key": "CG-SSfXKKnLCejRfTmyway2xR8Q",
-    },
-  };
-
   try {
-    // Recupera as moedas registradas no banco
-    const cryptos = await prisma.cryptos.findMany({
-      select: { externalId: true }, // Apenas o campo `externalId` é necessário
-    });
-
-    if (!cryptos.length) {
-      console.log("Nenhuma moeda encontrada no banco.");
-      return;
-    }
+    // Obter todas as moedas registradas no banco
+    const cryptos = await prisma.cryptos.findMany();
+    console.log(`Encontradas ${cryptos.length} moedas no banco.`);
 
     for (const crypto of cryptos) {
-      const url = `${apiUrl.replace("{id}", crypto.externalId)}?vs_currency=brl&days=365&precision=1`;
+      console.log(`Buscando gráfico para: ${crypto.name} (${crypto.externalId})`);
+      const url = `https://api.coingecko.com/api/v3/coins/${crypto.externalId}/market_chart?vs_currency=brl&days=365&precision=1`;
+      const options = {
+        method: "GET",
+        headers: {
+          accept: "application/json",
+          "x-cg-demo-api-key": "CG-SSfXKKnLCejRfTmyway2xR8Q",
+        },
+      };
 
       try {
         const response = await fetch(url, options);
-        const data = await response.json();
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
 
-        // Valida se há dados na resposta
-        if (data && data.prices) {
-          await prisma.cryptoCharts.create({
-            data: {
+        const marketChartData = await response.json();
+
+        if (marketChartData.prices) {
+          // Realiza o upsert no banco de dados
+          await prisma.cryptoCharts.upsert({
+            where: { externalId: crypto.externalId },
+            create: {
               externalId: crypto.externalId,
-              prices: data.prices,
-              marketCaps: data.market_caps,
-              totalVolumes: data.total_volumes,
+              prices: marketChartData.prices,
+              marketCaps: marketChartData.market_caps,
+              totalVolumes: marketChartData.total_volumes,
+            },
+            update: {
+              prices: marketChartData.prices,
+              marketCaps: marketChartData.market_caps,
+              totalVolumes: marketChartData.total_volumes,
             },
           });
 
-          console.log(`Gráfico para ${crypto.externalId} importado com sucesso.`);
+          console.log(
+            `Gráfico para ${crypto.name} (${crypto.externalId}) salvo no banco.`
+          );
         } else {
-          console.log(`Nenhum dado encontrado para ${crypto.externalId}`);
+          console.warn(`Gráfico não encontrado para ${crypto.name} (${crypto.externalId}).`);
         }
-      } catch (err) {
-        console.error(`Erro ao buscar gráfico para ${crypto.externalId}:`, err);
+      } catch (error) {
+        console.error(
+          `Erro ao buscar gráfico para ${crypto.name} (${crypto.externalId}):`,
+          error.message
+        );
       }
+
+      // Respeita o intervalo de requisições
+      await delay(DELAY_MS);
     }
-  } catch (err) {
-    console.error("Erro ao buscar moedas no banco:", err);
+
+    console.log("Importação de gráficos concluída.");
+  } catch (error) {
+    console.error("Erro na importação de gráficos:", error.message);
   } finally {
     await prisma.$disconnect();
   }
