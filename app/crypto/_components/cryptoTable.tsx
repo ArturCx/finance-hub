@@ -18,7 +18,7 @@ export default function CryptosTable() {
   const [cryptos, setCryptos] = useState([]);
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState<number>(0);
-  const limit = 10; // Número de registros por página
+  const limit = 10;
 
   const fetchCryptos = useCallback(async () => {
     try {
