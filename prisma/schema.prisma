@@ -28,6 +28,21 @@ model Transaction {
   @@map("transactions")
 }
 
+model Bills {
+  id            String            @id @default(uuid())
+  name          String
+  status        BillStatus
+  amount        Decimal           @db.Decimal(10, 2)
+  category      BillCategory
+  paymentMethod BillPaymentMethod
+  expireDate    DateTime
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+  userId        String
+
+  @@map("bills")
+}
+
 model Cryptos {
   id                       String        @id @default(uuid())
   externalId               String        @unique
@@ -75,6 +90,34 @@ enum TransactionCategory {
 }
 
 enum TransactionPaymentMethod {
+  CREDIT_CARD
+  DEBIT_CARD
+  BANK_TRANSFER
+  BANK_SLIP
+  CASH
+  PIX
+  OTHER
+}
+
+enum BillStatus {
+  PAID
+  PAYABLE
+  EXPIRED
+}
+
+enum BillCategory {
+  HOUSING
+  TRANSPORTATION
+  FOOD
+  ENTERTAINMENT
+  HEALTH
+  UTILITY
+  SALARY
+  EDUCATION
+  OTHER
+}
+
+enum BillPaymentMethod {
   CREDIT_CARD
   DEBIT_CARD
   BANK_TRANSFER

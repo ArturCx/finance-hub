@@ -5,6 +5,7 @@ import {
   WalletIcon,
 } from "lucide-react";
 import SummaryCard from "./summaryCard";
+import { Progress } from "@/app/_components/ui/progress";
 
 interface SummaryCards {
   month: string;
@@ -33,11 +34,14 @@ const SummaryCards = async ({
 
       {/* Outros cards */}
       <div className="grid grid-cols-3 gap-6">
-        <SummaryCard
-          icon={<PiggyBankIcon size={16} />}
-          title="Investido"
-          amount={investmentsTotal}
-        />
+        <div>
+          <SummaryCard
+            icon={<PiggyBankIcon size={16} />}
+            title="Investido"
+            amount={investmentsTotal}
+          />
+          <Progress className="mt-2" value={investmentsTotal} />
+        </div>
         <SummaryCard
           icon={<TrendingUpIcon size={16} className="text-primary" />}
           title="Receita"
