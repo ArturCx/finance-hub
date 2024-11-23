@@ -23,9 +23,10 @@ const LoginPage = async () => {
         />
         <h1 className="text-4xl font-bold mb-3">Bem Vindo!</h1>
         <p className="text-muted-foreground mb-8">
-          A Finance Hub é uma plataforma de gestão financeira que utiliza IA
-          para monitorar suas movimentações, e oferecer insights personalizados,
-          facilitando o controle do seu orçamento.
+          A Finance Hub é uma plataforma de gestão financeira inteligente para
+          monitorar suas movimentações, oferecer insights personalizados,
+          mostrar a cotação de suas criptomoedas, te avisar de contas a vencer e
+          muito mais!
         </p>
         <SignInButton>
           <Button variant="outline">
