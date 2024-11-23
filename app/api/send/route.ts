@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
 
     const user = await fetch(`https://api.clerk.dev/v1/users/${userId}`, {
       headers: {
-        Authorization: `Bearer ${process.env.CLERK_API_KEY}`,
+        Authorization: `Bearer ${process.env.CLERK_SECRET_KEY}`,
       },
     }).then((res) => res.json());
 
