@@ -9,6 +9,7 @@ import TransactionsPieChart from "./_components/transactionsPieChart";
 import ExpensesPerCategory from "./_components/expensesPerCategory";
 import LastTransactions from "./_components/lastTransactions";
 import AiReportButton from "./_components/aiReportButton";
+import TransactionsLineChart from "./_components/transactionsLineChart";
 
 interface HomeProps {
   searchParams: {
@@ -40,14 +41,20 @@ const Home = async ({ searchParams: { month } }: HomeProps) => {
         <div className="grid h-full grid-cols-[2fr,1fr] gap-6 overflow-hidden">
           <div className="flex flex-col gap-6 overflow-hidden">
             <SummaryCards month={month} {...dashboard} />
-            <div className="grid h-full grid-cols-3 grid-rows-1 gap-6 overflow-hidden">
+            <div className="flex w-full h-full grid-cols-3 grid-rows-1 gap-6 overflow-hidden">
               <TransactionsPieChart {...dashboard} />
-              <ExpensesPerCategory
-                expensesPerCategory={dashboard.totalExpensePerCategory}
+              <TransactionsLineChart
+                depositsTotal={10000}
+                expensesTotal={5000}
               />
             </div>
           </div>
-          <LastTransactions lastTransactions={dashboard.lastTransactions} />
+          <div className="flex flex-col gap-6 overflow-hidden">
+            <LastTransactions lastTransactions={dashboard.lastTransactions} />
+            <ExpensesPerCategory
+              expensesPerCategory={dashboard.totalExpensePerCategory}
+            />
+          </div>
         </div>
       </div>
     </>
