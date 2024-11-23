@@ -5,8 +5,7 @@ import {
   WalletIcon,
 } from "lucide-react";
 import SummaryCard from "./summaryCard";
-import { Progress } from "@/app/_components/ui/progress";
-
+import dynamic from "next/dynamic";
 interface SummaryCards {
   month: string;
   balance: number;
@@ -14,6 +13,13 @@ interface SummaryCards {
   investmentsTotal: number;
   expensesTotal: number;
 }
+
+const InvestmentGoalProgress = dynamic(
+  () => import("./InvestmentGoalProgress"),
+  {
+    ssr: false,
+  }
+);
 
 const SummaryCards = async ({
   balance,
@@ -34,13 +40,12 @@ const SummaryCards = async ({
 
       {/* Outros cards */}
       <div className="grid grid-cols-3 gap-6">
-        <div>
+        <div className="flex-columns-1 items-center">
           <SummaryCard
             icon={<PiggyBankIcon size={16} />}
             title="Investido"
             amount={investmentsTotal}
           />
-          <Progress className="mt-2" value={investmentsTotal} />
         </div>
         <SummaryCard
           icon={<TrendingUpIcon size={16} className="text-primary" />}
@@ -53,6 +58,7 @@ const SummaryCards = async ({
           amount={expensesTotal}
         />
       </div>
+      <InvestmentGoalProgress investmentsTotal={investmentsTotal} />
     </div>
   );
 };

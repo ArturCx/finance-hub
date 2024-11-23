@@ -167,7 +167,7 @@ const UpsertBillDialog = ({
                   >
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select a verified email to display" />
+                        <SelectValue placeholder="Selecione o status da conta..." />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>

@@ -14,8 +14,12 @@ const BillsPage = async () => {
   }
 
   const bills = await db.bills.findMany({
-    where: { userId },
-    orderBy: { createdAt: "desc" },
+    where: {
+      userId,
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
   });
 
   return (
