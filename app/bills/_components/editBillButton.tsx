@@ -29,6 +29,7 @@ const EditBillButton = ({ bill }: EditBillButtonProps) => {
         defaultValues={{
           ...bill,
           amount: Number(bill.amount),
+          expireDate: new Date(bill.expireDate),
         }}
         billId={bill.id}
       />
