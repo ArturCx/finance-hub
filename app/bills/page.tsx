@@ -25,10 +25,10 @@ const BillsPage = async () => {
   return (
     <>
       <Navbar />
-      <div className="space-y-6 p-6 flex h-full flex-col max-h-screen overflow-hidden">
+      <div className="space-y-6 p-4 md:p-6 flex h-full flex-col max-h-screen overflow-hidden">
         {/* Título e botão */}
-        <div className="flex w-full items-center justify-between">
-          <h1 className="text-2xl font-bold">Contas</h1>
+        <div className="flex flex-col sm:flex-row w-full items-center justify-between gap-4">
+          <h1 className="text-xl md:text-2xl font-bold">Contas</h1>
           <AddBillButton />
         </div>
         <ScrollArea className="h-full">

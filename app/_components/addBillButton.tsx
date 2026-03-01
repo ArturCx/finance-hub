@@ -14,7 +14,8 @@ const AddBillButton = () => {
         className="rounded-full font-bold"
         onClick={() => setDialogIsOpen(true)}
       >
-        Adicionar Conta
+        <span className="hidden sm:inline">Adicionar Conta</span>
+        <span className="sm:hidden">Adicionar</span>
         <ArrowDownUpIcon />
       </Button>
       <UpsertBillDialog isOpen={dialogIsOpen} setIsOpen={setDialogIsOpen} />

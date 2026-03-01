@@ -39,13 +39,15 @@ export default function InvestmentGoalProgress({
   return (
     <div className="space-y-6 p-1">
       {investmentGoal ? (
-        <div className="flex items-center space-x-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-4">
           {/* Botão para definir a meta */}
-          <Button onClick={() => setDialogOpen(true)}>Definir Meta</Button>
+          <Button onClick={() => setDialogOpen(true)} className="w-full sm:w-auto">
+            Definir Meta
+          </Button>
 
           {/* Barra de Progresso */}
-          <div className="flex-1">
-            <p className="text-sm mb-1">
+          <div className="flex-1 w-full">
+            <p className="text-xs md:text-sm mb-1">
               Progresso de Investimento: R${" "}
               {investmentsTotal.toLocaleString("pt-BR", {
                 minimumFractionDigits: 2,
@@ -59,11 +61,13 @@ export default function InvestmentGoalProgress({
           </div>
         </div>
       ) : (
-        <div className="flex items-center space-x-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-4">
           {/* Botão para definir a meta */}
-          <Button onClick={() => setDialogOpen(true)}>Definir Meta</Button>
+          <Button onClick={() => setDialogOpen(true)} className="w-full sm:w-auto">
+            Definir Meta
+          </Button>
 
-          <p className="text-gray-500 flex-1">
+          <p className="text-gray-500 flex-1 text-xs md:text-sm">
             Defina uma meta de investimento para começar a acompanhar o
             progresso.
           </p>

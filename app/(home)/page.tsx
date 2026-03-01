@@ -24,24 +24,24 @@ const Home = async ({ searchParams: { month } }: HomeProps) => {
   }
   const monthIsInvalid = !month || !isMatch(month, "MM");
   if (monthIsInvalid) {
-    redirect(`?month=${new Date().getMonth() + 1}`);
+    redirect(`?month=${String(new Date().getMonth() + 1).padStart(2, "0")}`);
   }
   const dashboard = await getDashboard(month);
   return (
     <>
       <Navbar />
-      <div className="flex h-full flex-col space-y-6 overflow-hidden p-6">
-        <div className="flex justify-between">
-          <h1 className="text-2xl font-bold">Dashboard</h1>
-          <div className="flex items-center gap-3">
+      <div className="flex h-full flex-col space-y-6 overflow-hidden p-4 md:p-6">
+        <div className="flex flex-col sm:flex-row justify-between gap-4">
+          <h1 className="text-xl md:text-2xl font-bold">Dashboard</h1>
+          <div className="flex items-center gap-2 md:gap-3">
             <AiReportButton month={month} />
             <TimeSelect />
           </div>
         </div>
-        <div className="grid h-full grid-cols-[2fr,1fr] gap-6 overflow-hidden">
-          <div className="flex flex-col gap-6 overflow-hidden">
+        <div className="grid h-full grid-cols-1 lg:grid-cols-[2fr,1fr] gap-4 md:gap-6 overflow-hidden">
+          <div className="flex flex-col gap-4 md:gap-6 overflow-hidden">
             <SummaryCards month={month} {...dashboard} />
-            <div className="flex w-full h-full grid-cols-3 grid-rows-1 gap-6 overflow-hidden">
+            <div className="flex flex-col lg:flex-row w-full h-full gap-4 md:gap-6 overflow-hidden">
               <TransactionsPieChart {...dashboard} />
               <TransactionsLineChart
                 depositsTotal={10000}
@@ -49,7 +49,7 @@ const Home = async ({ searchParams: { month } }: HomeProps) => {
               />
             </div>
           </div>
-          <div className="flex flex-col gap-6 overflow-hidden">
+          <div className="flex flex-col gap-4 md:gap-6 overflow-hidden">
             <LastTransactions lastTransactions={dashboard.lastTransactions} />
             <ExpensesPerCategory
               expensesPerCategory={dashboard.totalExpensePerCategory}

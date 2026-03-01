@@ -22,13 +22,13 @@ export default function SearchBar({
   };
 
   return (
-    <div className="flex items-center space-x-2">
+    <div className="flex items-center space-x-2 w-full sm:w-auto">
       <Input
         type="text"
         placeholder={placeholder}
         value={searchQuery}
         onChange={(e) => setSearchQuery(e.target.value)}
-        className="flex-1 rounded-full px-4"
+        className="flex-1 sm:flex-none rounded-full px-4"
       />
       <Button
         onClick={handleSearch}

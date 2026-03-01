@@ -11,9 +11,9 @@ const LoginPage = async () => {
     redirect("/");
   }
   return (
-    <div className="grid h-full grid-cols-2">
+    <div className="grid h-full grid-cols-1 lg:grid-cols-2">
       {/*Esquerda */}
-      <div className="flex h-full flex-col justify-center p-8 max-w-[550px] mx-auto">
+      <div className="flex h-full flex-col justify-center p-6 md:p-8 max-w-[550px] mx-auto w-full">
         <Image
           src="/logo.svg"
           width={173}
@@ -21,8 +21,8 @@ const LoginPage = async () => {
           alt="Finance Hub Logo"
           className="mb-8 pl-1"
         />
-        <h1 className="text-4xl font-bold mb-3">Bem Vindo!</h1>
-        <p className="text-muted-foreground mb-8">
+        <h1 className="text-2xl md:text-4xl font-bold mb-3">Bem Vindo!</h1>
+        <p className="text-sm md:text-base text-muted-foreground mb-8">
           A Finance Hub é uma plataforma de gestão financeira inteligente para
           monitorar suas movimentações, oferecer insights personalizados,
           mostrar a cotação de suas criptomoedas, te avisar de contas a vencer e
@@ -36,7 +36,7 @@ const LoginPage = async () => {
         </SignInButton>
       </div>
       {/*Direita */}
-      <div className="relative h-full w-full">
+      <div className="relative h-full w-full hidden lg:block">
         <Image
           src="/login.webp"
           alt="Faça login"
