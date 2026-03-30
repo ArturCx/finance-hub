@@ -3,17 +3,27 @@
 import { UserButton } from "@clerk/nextjs";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
+import { getResolvedMonthYear } from "@/app/_utils/monthYearFilter";
 
 const Navbar = () => {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const { month, year } = getResolvedMonthYear(
+    searchParams.get("month"),
+    searchParams.get("year")
+  );
+
+  const getHrefWithMonthYear =
+    (basePath: string) => `${basePath}?month=${month}&year=${year}`;
+
   return (
     <nav className="flex justify-between border-b border-solid px-4 md:px-8 py-4">
       {/* Esquerda */}
       <div className="flex items-center gap-4 md:gap-10">
         <Image src="/logo.svg" width={130} height={40} alt="Finance AI" className="w-20 md:w-[130px] h-auto" />
         <Link
-          href="/"
+          href={getHrefWithMonthYear("/")}
           className={
             pathname === "/"
               ? "font-bold text-primary text-xs md:text-base"
@@ -23,7 +33,7 @@ const Navbar = () => {
           Dashboard
         </Link>
         <Link
-          href="/transactions"
+          href={getHrefWithMonthYear("/transactions")}
           className={
             pathname === "/transactions"
               ? "font-bold text-primary text-xs md:text-base hidden sm:block"
@@ -33,7 +43,7 @@ const Navbar = () => {
           Transações
         </Link>
         <Link
-          href="/bills"
+          href={getHrefWithMonthYear("/bills")}
           className={
             pathname === "/bills"
               ? "font-bold text-primary text-xs md:text-base hidden md:block"

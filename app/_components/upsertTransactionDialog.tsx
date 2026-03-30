@@ -82,16 +82,18 @@ const UpsertTransactionDialog = ({
   transactionId,
   setIsOpen,
 }: UpsertTransactionDialogProps) => {
+  const formDefaultValues: Partial<FormSchema> = defaultValues ?? {
+    amount: undefined,
+    category: undefined,
+    date: new Date(),
+    name: "",
+    paymentMethod: undefined,
+    type: undefined,
+  };
+
   const form = useForm<FormSchema>({
     resolver: zodResolver(formSchema),
-    defaultValues: defaultValues ?? {
-      amount: 50,
-      category: TransactionCategory.OTHER,
-      date: new Date(),
-      name: "",
-      paymentMethod: TransactionPaymentMethod.CASH,
-      type: TransactionType.EXPENSE,
-    },
+    defaultValues: formDefaultValues,
   });
 
   const onSubmit = async (data: FormSchema) => {
@@ -112,7 +114,7 @@ const UpsertTransactionDialog = ({
       onOpenChange={(open) => {
         setIsOpen(open);
         if (!open) {
-          form.reset();
+          form.reset(formDefaultValues);
         }
       }}
     >
@@ -167,13 +169,12 @@ const UpsertTransactionDialog = ({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Tipo</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
+                  <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a verified email to display" />
+                      <SelectTrigger
+                        className={field.value ? "text-white" : "text-muted-foreground"}
+                      >
+                        <SelectValue placeholder="Selecione..." />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
@@ -194,13 +195,12 @@ const UpsertTransactionDialog = ({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Categoria</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
+                  <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecione a categoria..." />
+                      <SelectTrigger
+                        className={field.value ? "text-white" : "text-muted-foreground"}
+                      >
+                        <SelectValue placeholder="Selecione..." />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
@@ -221,13 +221,12 @@ const UpsertTransactionDialog = ({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Método de pagamento</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
+                  <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecione um método de pagamento..." />
+                      <SelectTrigger
+                        className={field.value ? "text-white" : "text-muted-foreground"}
+                      >
+                        <SelectValue placeholder="Selecione..." />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>

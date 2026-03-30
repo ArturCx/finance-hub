@@ -1,20 +1,36 @@
 import { db } from "@/app/_lib/prisma";
-import { TransactionType } from "@prisma/client";
-import { TotalExpensePerCategory, TransactionPercentagePerType } from "./types";
+import { BillStatus, TransactionCategory, TransactionType } from "@prisma/client";
+import {
+  TotalExpensePerCategory,
+  TransactionPercentagePerType,
+  WeeklyTransactionTotals,
+} from "./types";
 import { auth } from "@clerk/nextjs/server";
+import { getMonthDateRange } from "@/app/_utils/monthYearFilter";
 
-export const getDashboard = async (month: string) => {
+export const getDashboard = async (month: string, year: string) => {
   const { userId } = await auth();
   if (!userId) {
     throw new Error("Unauthorized");
   }
+  const { startDate, endDate } = getMonthDateRange(month, year);
+
   const where = {
     userId,
     date: {
-      gte: new Date(`2024-${month}-01`),
-      lt: new Date(`2024-${month}-31`),
+      gte: startDate,
+      lt: endDate,
     },
   };
+  const paidBillsWhere = {
+    userId,
+    status: BillStatus.PAID,
+    expireDate: {
+      gte: startDate,
+      lt: endDate,
+    },
+  };
+
   const depositsTotal = Number(
     (
       await db.transaction.aggregate({
@@ -39,56 +55,136 @@ export const getDashboard = async (month: string) => {
       })
     )?._sum?.amount
   );
-  const balance = depositsTotal - investmentsTotal - expensesTotal;
-  const transactionsTotal = Number(
+  const paidBillsTotal = Number(
     (
-      await db.transaction.aggregate({
-        where,
+      await db.bills.aggregate({
+        where: paidBillsWhere,
         _sum: { amount: true },
       })
-    )._sum.amount
+    )?._sum?.amount
   );
+
+  const totalExpenses = expensesTotal + paidBillsTotal;
+  const balance = depositsTotal - investmentsTotal - totalExpenses;
+  const transactionsTotal = depositsTotal + investmentsTotal + totalExpenses;
+
   const typesPercentage: TransactionPercentagePerType = {
     [TransactionType.DEPOSIT]: Math.round(
-      (Number(depositsTotal || 0) / Number(transactionsTotal)) * 100
+      transactionsTotal > 0 ? (depositsTotal / transactionsTotal) * 100 : 0
     ),
     [TransactionType.EXPENSE]: Math.round(
-      (Number(expensesTotal || 0) / Number(transactionsTotal)) * 100
+      transactionsTotal > 0 ? (totalExpenses / transactionsTotal) * 100 : 0
     ),
     [TransactionType.INVESTMENT]: Math.round(
-      (Number(investmentsTotal || 0) / Number(transactionsTotal)) * 100
+      transactionsTotal > 0 ? (investmentsTotal / transactionsTotal) * 100 : 0
     ),
   };
-  const totalExpensePerCategory: TotalExpensePerCategory[] = (
-    await db.transaction.groupBy({
-      by: ["category"],
-      where: {
-        ...where,
-        type: TransactionType.EXPENSE,
-      },
-      _sum: {
-        amount: true,
-      },
-    })
-  ).map((category) => ({
-    category: category.category,
-    totalAmount: Number(category._sum.amount),
-    percentageOfTotal: Math.round(
-      (Number(category._sum.amount) / Number(expensesTotal)) * 100
-    ),
+
+  const transactionExpensesPerCategory = await db.transaction.groupBy({
+    by: ["category"],
+    where: {
+      ...where,
+      type: TransactionType.EXPENSE,
+    },
+    _sum: {
+      amount: true,
+    },
+  });
+
+  const paidBillsPerCategory = await db.bills.groupBy({
+    by: ["category"],
+    where: paidBillsWhere,
+    _sum: {
+      amount: true,
+    },
+  });
+
+  const expenseCategoryTotals = new Map<TransactionCategory, number>();
+
+  transactionExpensesPerCategory.forEach((item) => {
+    const currentTotal = expenseCategoryTotals.get(item.category) ?? 0;
+    expenseCategoryTotals.set(item.category, currentTotal + Number(item._sum.amount));
+  });
+
+  paidBillsPerCategory.forEach((item) => {
+    const category = item.category as unknown as TransactionCategory;
+    const currentTotal = expenseCategoryTotals.get(category) ?? 0;
+    expenseCategoryTotals.set(category, currentTotal + Number(item._sum.amount));
+  });
+
+  const totalExpensePerCategory: TotalExpensePerCategory[] = Array.from(
+    expenseCategoryTotals.entries()
+  ).map(([category, totalAmount]) => ({
+    category,
+    totalAmount,
+    percentageOfTotal:
+      totalExpenses > 0 ? Math.round((totalAmount / totalExpenses) * 100) : 0,
   }));
+
   const lastTransactions = await db.transaction.findMany({
     where,
     orderBy: { date: "desc" },
     take: 15,
   });
+
+  const monthlyTransactions = await db.transaction.findMany({
+    where: {
+      ...where,
+      type: {
+        in: [TransactionType.DEPOSIT, TransactionType.EXPENSE],
+      },
+    },
+    select: {
+      date: true,
+      amount: true,
+      type: true,
+    },
+  });
+
+  const monthlyPaidBills = await db.bills.findMany({
+    where: paidBillsWhere,
+    select: {
+      expireDate: true,
+      amount: true,
+    },
+  });
+
+  const weeklyTransactions: WeeklyTransactionTotals[] = [
+    { week: "Semana 1", deposits: 0, expenses: 0 },
+    { week: "Semana 2", deposits: 0, expenses: 0 },
+    { week: "Semana 3", deposits: 0, expenses: 0 },
+    { week: "Semana 4", deposits: 0, expenses: 0 },
+  ];
+
+  monthlyTransactions.forEach((transaction) => {
+    const day = new Date(transaction.date).getDate();
+    const weekIndex =
+      day <= 7 ? 0 : day <= 14 ? 1 : day <= 21 ? 2 : 3;
+    const amount = Number(transaction.amount);
+
+    if (transaction.type === TransactionType.DEPOSIT) {
+      weeklyTransactions[weekIndex].deposits += amount;
+    }
+
+    if (transaction.type === TransactionType.EXPENSE) {
+      weeklyTransactions[weekIndex].expenses += amount;
+    }
+  });
+
+  monthlyPaidBills.forEach((bill) => {
+    const day = new Date(bill.expireDate).getDate();
+    const weekIndex = day <= 7 ? 0 : day <= 14 ? 1 : day <= 21 ? 2 : 3;
+    weeklyTransactions[weekIndex].expenses += Number(bill.amount);
+  });
+
   return {
     balance,
     depositsTotal,
     investmentsTotal,
-    expensesTotal,
+    expensesTotal: totalExpenses,
     typesPercentage,
     totalExpensePerCategory,
+    weeklyTransactions,
     lastTransactions: JSON.parse(JSON.stringify(lastTransactions)),
   };
 };

@@ -19,15 +19,16 @@ import { ScrollArea } from "@/app/_components/ui/scroll-area";
 
 interface AiReportButtonProps {
   month: string;
+  year: string;
 }
 
-const AiReportButton = ({ month }: AiReportButtonProps) => {
+const AiReportButton = ({ month, year }: AiReportButtonProps) => {
   const [reportIsLoading, setReportIsLoading] = useState(false);
   const [report, setReport] = useState<string | null>(null);
   const handleGenerateReportClick = async () => {
     try {
       setReportIsLoading(true);
-      const report = await generateAiReport({ month });
+      const report = await generateAiReport({ month, year });
       console.log({ report });
       setReport(report);
     } catch (error) {

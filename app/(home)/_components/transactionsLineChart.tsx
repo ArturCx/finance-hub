@@ -8,10 +8,10 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/app/_components/ui/chart";
+import { WeeklyTransactionTotals } from "@/app/_data/getDashboard/types";
 
 interface TransactionsLineChartProps {
-  depositsTotal: number;
-  expensesTotal: number;
+  weeklyTransactions: WeeklyTransactionTotals[];
 }
 
 const chartConfig = {
@@ -26,67 +26,13 @@ const chartConfig = {
 } satisfies ChartConfig;
 
 export default function TransactionsLineChart({
-  depositsTotal,
-  expensesTotal,
+  weeklyTransactions,
 }: TransactionsLineChartProps) {
-  const chartData = [
-    { month: "January", Receita: depositsTotal, Despesas: expensesTotal },
-    {
-      month: "February",
-      Receita: depositsTotal + 600,
-      Despesas: expensesTotal + 200,
-    },
-    {
-      month: "March",
-      Receita: depositsTotal - 400,
-      Despesas: expensesTotal + 600,
-    },
-    {
-      month: "April",
-      Receita: depositsTotal + 1000,
-      Despesas: expensesTotal + 100,
-    },
-    {
-      month: "May",
-      Receita: depositsTotal - 500,
-      Despesas: expensesTotal + 3800,
-    },
-    {
-      month: "June",
-      Receita: depositsTotal + 1250,
-      Despesas: expensesTotal + 1170,
-    },
-    {
-      month: "July",
-      Receita: depositsTotal + 250,
-      Despesas: expensesTotal + 170,
-    },
-    {
-      month: "August",
-      Receita: depositsTotal + 2500,
-      Despesas: expensesTotal + 1700,
-    },
-    {
-      month: "September",
-      Receita: depositsTotal - 5500,
-      Despesas: expensesTotal + 3700,
-    },
-    {
-      month: "October",
-      Receita: depositsTotal + 2500,
-      Despesas: expensesTotal + 170,
-    },
-    {
-      month: "November",
-      Receita: depositsTotal - 1500,
-      Despesas: expensesTotal + 1170,
-    },
-    {
-      month: "December",
-      Receita: depositsTotal + 250,
-      Despesas: expensesTotal + 170,
-    },
-  ];
+  const chartData = weeklyTransactions.map((week) => ({
+    week: week.week,
+    Receita: week.deposits,
+    Despesas: week.expenses,
+  }));
 
   return (
     <Card className="flex flex-col p-6 w-full h-full">
@@ -99,17 +45,18 @@ export default function TransactionsLineChart({
             accessibilityLayer
             data={chartData}
             margin={{
-              left: 12,
-              right: 12,
+              left: 24,
+              right: 24,
             }}
           >
             <CartesianGrid vertical={false} />
             <XAxis
-              dataKey="month"
+              dataKey="week"
               tickLine={false}
               axisLine={false}
               tickMargin={8}
-              tickFormatter={(value) => value.slice(0, 3)}
+              interval={0}
+              padding={{ left: 8, right: 8 }}
             />
             <ChartTooltip
               cursor={false}

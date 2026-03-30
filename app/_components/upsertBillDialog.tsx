@@ -78,16 +78,18 @@ const UpsertBillDialog = ({
   billId,
   setIsOpen,
 }: UpsertBillDialogProps) => {
+  const formDefaultValues: Partial<FormSchema> = defaultValues ?? {
+    amount: undefined,
+    category: undefined,
+    expireDate: new Date(),
+    name: "",
+    paymentMethod: undefined,
+    status: undefined,
+  };
+
   const form = useForm<FormSchema>({
     resolver: zodResolver(formSchema),
-    defaultValues: defaultValues ?? {
-      amount: 50,
-      category: BillCategory.OTHER,
-      expireDate: new Date(),
-      name: "",
-      paymentMethod: BillPaymentMethod.CASH,
-      status: BillStatus.PAYABLE,
-    },
+    defaultValues: formDefaultValues,
   });
 
   const onSubmit = async (data: FormSchema) => {
@@ -108,7 +110,7 @@ const UpsertBillDialog = ({
       onOpenChange={(open) => {
         setIsOpen(open);
         if (!open) {
-          form.reset();
+          form.reset(formDefaultValues);
         }
       }}
     >
@@ -161,13 +163,12 @@ const UpsertBillDialog = ({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Status</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
+                  <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecione o status da conta..." />
+                      <SelectTrigger
+                        className={field.value ? "text-white" : "text-muted-foreground"}
+                      >
+                        <SelectValue placeholder="Selecione..." />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
@@ -188,13 +189,12 @@ const UpsertBillDialog = ({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Categoria</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
+                  <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecione a categoria..." />
+                      <SelectTrigger
+                        className={field.value ? "text-white" : "text-muted-foreground"}
+                      >
+                        <SelectValue placeholder="Selecione..." />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
@@ -215,13 +215,12 @@ const UpsertBillDialog = ({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Método de pagamento</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
+                  <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecione um método de pagamento..." />
+                      <SelectTrigger
+                        className={field.value ? "text-white" : "text-muted-foreground"}
+                      >
+                        <SelectValue placeholder="Selecione..." />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>

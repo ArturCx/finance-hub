@@ -9,3 +9,9 @@ export interface TotalExpensePerCategory {
   totalAmount: number;
   percentageOfTotal: number;
 }
+
+export interface WeeklyTransactionTotals {
+  week: string;
+  deposits: number;
+  expenses: number;
+}

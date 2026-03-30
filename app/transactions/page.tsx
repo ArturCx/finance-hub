@@ -6,18 +6,52 @@ import Navbar from "../_components/navbar";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { ScrollArea } from "@/app/_components/ui/scroll-area";
+import {
+  getMonthDateRange,
+  getResolvedMonthYear,
+  isValidMonth,
+  isValidYear,
+} from "../_utils/monthYearFilter";
+import DeleteTransactionsByMonthButton from "./_components/deleteTransactionsByMonthButton";
 
-const TransactionsPage = async () => {
+interface TransactionsPageProps {
+  searchParams: {
+    month?: string;
+    year?: string;
+  };
+}
+
+const TransactionsPage = async ({
+  searchParams: { month, year },
+}: TransactionsPageProps) => {
   const { userId } = await auth();
   if (!userId) {
     redirect("/login");
   }
+
+  const monthIsInvalid = !month || !isValidMonth(month);
+  const yearIsInvalid = !year || !isValidYear(year);
+  const resolved = getResolvedMonthYear(month, year);
+
+  if (monthIsInvalid || yearIsInvalid) {
+    redirect(`/transactions?month=${resolved.month}&year=${resolved.year}`);
+  }
+
+  const { startDate, endDate } = getMonthDateRange(
+    resolved.month,
+    resolved.year,
+  );
+
   const transactions = await db.transaction.findMany({
     where: {
       userId,
+      date: {
+        gte: startDate,
+        lt: endDate,
+      },
     },
     orderBy: {
-      createdAt: "desc",
+      date: "desc",
     },
   });
   return (
@@ -27,7 +61,14 @@ const TransactionsPage = async () => {
         {/* Título e botão */}
         <div className="flex flex-col sm:flex-row w-full items-center justify-between gap-4">
           <h1 className="text-xl md:text-2xl font-bold">Transações</h1>
-          <AddTransactionButton />
+          <div className="flex items-center gap-2">
+            <AddTransactionButton />
+            <DeleteTransactionsByMonthButton
+              month={resolved.month}
+              year={resolved.year}
+              totalCount={transactions.length}
+            />
+          </div>
         </div>
         <ScrollArea className="h-full">
           <DataTable

@@ -3,19 +3,23 @@ import { db } from "@/app/_lib/prisma";
 import { auth } from "@clerk/nextjs/server";
 import OpenAI from "openai";
 import { generateAiReportSchema, GenerateAiReportSchema } from "./schema";
+import { getMonthDateRange } from "@/app/_utils/monthYearFilter";
 
-export const generateAiReport = async ({ month }: GenerateAiReportSchema) => {
-  generateAiReportSchema.parse({ month });
+export const generateAiReport = async ({ month, year }: GenerateAiReportSchema) => {
+  generateAiReportSchema.parse({ month, year });
   const { userId } = await auth();
   if (!userId) {
     throw new Error("Unauthorized");
   }
   const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+  const { startDate, endDate } = getMonthDateRange(month, year);
+
   const transactions = await db.transaction.findMany({
     where: {
+      userId,
       date: {
-        gte: new Date(`2024-${month}-01`),
-        lt: new Date(`2024-${month}-31`),
+        gte: startDate,
+        lt: endDate,
       },
     },
   });

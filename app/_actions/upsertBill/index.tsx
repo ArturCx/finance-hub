@@ -30,4 +30,5 @@ export const upsertBill = async (params: UpsertBillParams) => {
     },
   });
   revalidatePath("/bills");
+  revalidatePath("/");
 };

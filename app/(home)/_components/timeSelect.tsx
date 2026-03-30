@@ -8,6 +8,7 @@ import {
   SelectValue,
 } from "@/app/_components/ui/select";
 import { useRouter, useSearchParams } from "next/navigation";
+import { getCurrentYear, isValidYear } from "@/app/_utils/monthYearFilter";
 
 const MONTH_OPTIONS = [
   { value: "01", label: "January" },
@@ -28,8 +29,10 @@ const TimeSelect = () => {
   const { push } = useRouter();
   const searchParams = useSearchParams();
   const month = searchParams.get("month");
+  const yearParam = searchParams.get("year");
+  const year = isValidYear(yearParam) ? yearParam : getCurrentYear();
   const handleMonthChange = (month: string) => {
-    push(`/?month=${month}`);
+    push(`/?month=${month}&year=${year}`);
   };
   return (
     <Select

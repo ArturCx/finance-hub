@@ -6,19 +6,50 @@ import { ScrollArea } from "../_components/ui/scroll-area";
 import { DataTable } from "../_components/ui/dataTable";
 import { billColumns } from "./_columns";
 import { db } from "../_lib/prisma";
+import {
+  getMonthDateRange,
+  getResolvedMonthYear,
+  isValidMonth,
+  isValidYear,
+} from "../_utils/monthYearFilter";
+import DeleteBillsByMonthButton from "./_components/deleteBillsByMonthButton";
 
-const BillsPage = async () => {
+interface BillsPageProps {
+  searchParams: {
+    month?: string;
+    year?: string;
+  };
+}
+
+const BillsPage = async ({ searchParams: { month, year } }: BillsPageProps) => {
   const { userId } = await auth();
   if (!userId) {
     redirect("/login");
   }
 
+  const monthIsInvalid = !month || !isValidMonth(month);
+  const yearIsInvalid = !year || !isValidYear(year);
+  const resolved = getResolvedMonthYear(month, year);
+
+  if (monthIsInvalid || yearIsInvalid) {
+    redirect(`/bills?month=${resolved.month}&year=${resolved.year}`);
+  }
+
+  const { startDate, endDate } = getMonthDateRange(
+    resolved.month,
+    resolved.year,
+  );
+
   const bills = await db.bills.findMany({
     where: {
       userId,
+      expireDate: {
+        gte: startDate,
+        lt: endDate,
+      },
     },
     orderBy: {
-      createdAt: "desc",
+      expireDate: "desc",
     },
   });
 
@@ -29,7 +60,14 @@ const BillsPage = async () => {
         {/* Título e botão */}
         <div className="flex flex-col sm:flex-row w-full items-center justify-between gap-4">
           <h1 className="text-xl md:text-2xl font-bold">Contas</h1>
-          <AddBillButton />
+          <div className="flex items-center gap-2">
+            <AddBillButton />
+            <DeleteBillsByMonthButton
+              month={resolved.month}
+              year={resolved.year}
+              totalCount={bills.length}
+            />
+          </div>
         </div>
         <ScrollArea className="h-full">
           <DataTable

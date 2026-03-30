@@ -10,23 +10,35 @@ import ExpensesPerCategory from "./_components/expensesPerCategory";
 import LastTransactions from "./_components/lastTransactions";
 import AiReportButton from "./_components/aiReportButton";
 import TransactionsLineChart from "./_components/transactionsLineChart";
+import {
+  getResolvedMonthYear,
+  isValidMonth,
+  isValidYear,
+} from "../_utils/monthYearFilter";
 
 interface HomeProps {
   searchParams: {
-    month: string;
+    month?: string;
+    year?: string;
   };
 }
 
-const Home = async ({ searchParams: { month } }: HomeProps) => {
+const Home = async ({ searchParams: { month, year } }: HomeProps) => {
   const { userId } = await auth();
   if (!userId) {
     redirect("/login");
   }
-  const monthIsInvalid = !month || !isMatch(month, "MM");
-  if (monthIsInvalid) {
-    redirect(`?month=${String(new Date().getMonth() + 1).padStart(2, "0")}`);
+
+  const monthIsInvalid = !month || !isValidMonth(month) || !isMatch(month, "MM");
+  const yearIsInvalid = !year || !isValidYear(year);
+  const resolved = getResolvedMonthYear(month, year);
+
+  if (monthIsInvalid || yearIsInvalid) {
+    redirect(`/?month=${resolved.month}&year=${resolved.year}`);
   }
-  const dashboard = await getDashboard(month);
+
+  const dashboard = await getDashboard(resolved.month, resolved.year);
+
   return (
     <>
       <Navbar />
@@ -34,18 +46,17 @@ const Home = async ({ searchParams: { month } }: HomeProps) => {
         <div className="flex flex-col sm:flex-row justify-between gap-4">
           <h1 className="text-xl md:text-2xl font-bold">Dashboard</h1>
           <div className="flex items-center gap-2 md:gap-3">
-            <AiReportButton month={month} />
+            <AiReportButton month={resolved.month} year={resolved.year} />
             <TimeSelect />
           </div>
         </div>
         <div className="grid h-full grid-cols-1 lg:grid-cols-[2fr,1fr] gap-4 md:gap-6 overflow-hidden">
           <div className="flex flex-col gap-4 md:gap-6 overflow-hidden">
-            <SummaryCards month={month} {...dashboard} />
+            <SummaryCards month={resolved.month} {...dashboard} />
             <div className="flex flex-col lg:flex-row w-full h-full gap-4 md:gap-6 overflow-hidden">
               <TransactionsPieChart {...dashboard} />
               <TransactionsLineChart
-                depositsTotal={10000}
-                expensesTotal={5000}
+                weeklyTransactions={dashboard.weeklyTransactions}
               />
             </div>
           </div>
