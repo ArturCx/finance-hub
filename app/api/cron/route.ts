@@ -17,7 +17,7 @@ const marketOptions = {
   method: "GET",
   headers: {
     accept: "application/json",
-    "x-cg-demo-api-key": "CG-SSfXKKnLCejRfTmyway2xR8Q",
+    "x-cg-demo-api-key": process.env.GECKO_API_KEY ?? "",
   },
 };
 
@@ -29,7 +29,7 @@ export async function GET(req: NextRequest) {
     method: "GET",
     headers: {
       accept: "application/json",
-      "x-cg-demo-api-key": "CG-SSfXKKnLCejRfTmyway2xR8Q",
+      "x-cg-demo-api-key": process.env.GECKO_API_KEY ?? "",
     },
   };
 
