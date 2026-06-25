@@ -67,16 +67,29 @@ in real time.
 | **External data** | [CoinGecko API](https://www.coingecko.com/en/api) |
 | **Deployment** | [Vercel](https://vercel.com) (with scheduled Cron Jobs) |
 
-## Architecture Highlights
+## Architecture
 
-- **Server Actions** handle data mutations (upserting transactions/bills, generating AI reports)
-  directly from the server without a separate API layer.
-- **Prisma schema** models `Transaction`, `Bills`, `Cryptos` and `CryptoCharts` against a
-  PostgreSQL database.
+Finance Hub is a **full-stack Next.js application** — there is no separate backend service.
+The App Router handles both the UI and the server-side logic in a single codebase, deployed
+together on Vercel.
+
+```
+Browser (React components)
+        │
+Next.js server  ──  Server Actions + Route Handlers   ← backend layer
+        │
+Prisma  ──  PostgreSQL          + external APIs (OpenAI, CoinGecko)
+```
+
+- **Server Actions** (`"use server"`) handle data mutations (upserting transactions/bills,
+  generating AI reports) directly from the server without a separate API layer.
+- **Route Handlers** (`app/api/*`) expose HTTP endpoints, including the scheduled cron job.
+- **Prisma** is the ORM, modeling `Transaction`, `Bills`, `Cryptos` and `CryptoCharts`
+  against a **PostgreSQL** database.
 - **Vercel Cron Jobs** refresh cryptocurrency market data and charts daily via `/api/cron`.
 
 ---
 
 <div align="center">
-  Made by <strong>Artur César</strong>
+  Made with ☕ by <strong>ArturCx</strong>
 </div>
